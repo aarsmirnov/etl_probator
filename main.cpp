@@ -8,21 +8,11 @@
 #include "core.h"
 #include "logfile.h"
 
-#include <Windows.h>
-#include <bluetoothapis.h>
-
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     QApplication::setApplicationName(QObject::tr("ЭТЛ SCAN-2"));
     QApplication::setAttribute(Qt::AA_Use96Dpi);
-
-    BLUETOOTH_FIND_RADIO_PARAMS params;
-    ::ZeroMemory(&params, sizeof(params));
-    params.dwSize = sizeof(params);
-
-    HANDLE hRadio = nullptr;
-    HBLUETOOTH_RADIO_FIND hSearch = ::BluetoothFindFirstRadio(&params, &hRadio);
 
     QSharedPointer<Core> programm_core;
     try {

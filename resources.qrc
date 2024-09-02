@@ -15,6 +15,7 @@
         <file>pics/caret-down-solid.svg</file>
         <file>pics/minus-line-icon.svg</file>
         <file>pics/plus-line-icon.svg</file>
+        <file>devices/style/iks30a_stylesheet.css</file>
     </qresource>
     <qresource prefix="/ui">
         <file>style/window_min.svg</file>
@@ -37,5 +38,7 @@
         <file>style/scheme/sch1_hover.svg</file>
         <file>style/scheme/sch1.svg</file>
         <file>style/page_arrows.svg</file>
+        <file>style/spinner.svg</file>
+        <file>style/spinner2.svg</file>
     </qresource>
 </RCC>

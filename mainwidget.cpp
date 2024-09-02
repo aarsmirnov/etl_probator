@@ -17,14 +17,14 @@
 #include <QMenuBar>
 #include <QDesktopServices>
 #include <QUrl>
-#include <QBluetoothDeviceDiscoveryAgent>
-
-//#include <QDebug>
 
 #include "core.h"
 #include "logfile.h"
 
 #include "widgets/custombutton.h"
+
+#include "devices/device.h"
+#include "devices/device_iks30a.h"
 
 namespace  {
 
@@ -92,6 +92,16 @@ void UpdateStyle(QWidget* w)
 
 }
 
+Device *createDevice(const QString &name)
+{
+    if (name == "Измерение омического сопротивления ИКС-30А") {
+        return new Device_IKS30A(name);
+    }
+
+    return nullptr;
+}
+
+
 #include <QDebug>
 
 class MainWidgetPrivate
@@ -120,8 +130,7 @@ class MainWidgetPrivate
     int                                 m_last_probation = -1;
 
     QString                             m_currentTest;
-
-    QBluetoothDeviceDiscoveryAgent *discoveryAgent = nullptr;
+    QString                             m_currentSchema;
 
     void configUI()
     {
@@ -173,14 +182,11 @@ class MainWidgetPrivate
                 column = 0;
             }
 
-            //QAction *action = new QAction(type.title, testsMenu);
-
-
             QMenu *subMenu = new QMenu(type.title);
             testsMenu->addMenu(subMenu);
             QObject::connect(testsMenu, &QMenu::triggered, [this] (QAction *action) {
-                //m_currentTest = action->text();
-                //updateSchemaViewPage();
+                m_currentSchema = action->text();
+                setDeviceWidget();
                 ui->stackedWidgetTests->setCurrentIndex(2);
             });
 
@@ -224,13 +230,6 @@ class MainWidgetPrivate
         QObject::connect(ui->stackedWidgetTests, &QStackedWidget::currentChanged, [this] (int index) {
             ui->wFooter->setVisible(index < 2);
         });
-
-        QBluetoothDeviceDiscoveryAgent();
-        QObject::connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered, [this] (const QBluetoothDeviceInfo &info) {
-            ui->teBluetoothDiscover->append(info.name());
-        });
-        ui->teBluetoothDiscover->append("Search bluetooth device...");
-        discoveryAgent->start();
 
 //        ui->dateLabel->setText(QDateTime::currentDateTime().toString("hh:mm:ss | dd.MM.yyyy"));
 //        QTimer* dateTimer = new QTimer(q);
@@ -378,6 +377,27 @@ class MainWidgetPrivate
         }
     }
 
+    void clearDeviceWidget()
+    {
+        QLayoutItem *item;
+        while ((item = ui->gridLayout_7->takeAt(0)) != nullptr) {
+            delete item->widget();
+            delete item;
+        }
+    }
+
+    void setDeviceWidget()
+    {
+        clearDeviceWidget();
+
+        auto widget = createDevice(m_currentSchema);
+        if (widget == nullptr) {
+            return;
+        }
+
+        ui->gridLayout_7->addWidget(widget);
+    }
+
     void updateSchemaViewPage()
     {
         clearSchemaViewPage();
@@ -402,7 +422,9 @@ class MainWidgetPrivate
             button->setIcon(QPixmap(QString{ ":/ui/style/scheme/%1.svg" }.arg("sch1")),
                             QPixmap(QString{ ":/ui/style/scheme/%1_hover.svg" }.arg("sch1")));
             ui->gridLayoutSchema->addWidget(button, row, column++);
-            QObject::connect(button, &CustomButton::clicked, [this] {
+            QObject::connect(button, &CustomButton::clicked, [this, button] {
+                m_currentSchema = button->text();
+                setDeviceWidget();
                 ui->stackedWidgetTests->setCurrentIndex(2);
             });
 
