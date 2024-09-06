@@ -1,4 +1,4 @@
-#include "BluetoothIKSDevice.h"
+#include "bluetoothiksdevice.h"
 
 namespace {
     const auto serviceUuid = QBluetoothUuid(QString("{49535343-fe7d-4ae5-8fa9-9fafd205e455}"));
@@ -33,8 +33,8 @@ namespace {
 }
 
 BluetoothIKSDevice::BluetoothIKSDevice(const QBluetoothDeviceInfo &info, QObject *parent)
-    : m_controller {QLowEnergyController::createCentral(info)}
-    , QObject{parent}
+    : QObject{parent}
+    , m_controller {QLowEnergyController::createCentral(info)}
 {
 
 }
@@ -121,6 +121,8 @@ void BluetoothIKSDevice::onServiceStateChanged(QLowEnergyService::ServiceState n
 
 void BluetoothIKSDevice::onServiceCharacteristicChanged(const QLowEnergyCharacteristic &info, const QByteArray &value)
 {
+    Q_UNUSED(info)
+
     qDebug() << "BluetoothIKSDevice: service characteristic changed:" << value.toHex();
     emit responseReceived(*(reinterpret_cast<const float*>(value.mid(5).constData())));
 }

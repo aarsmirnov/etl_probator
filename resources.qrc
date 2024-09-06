@@ -39,6 +39,5 @@
         <file>style/scheme/sch1.svg</file>
         <file>style/page_arrows.svg</file>
         <file>style/spinner.svg</file>
-        <file>style/spinner2.svg</file>
     </qresource>
 </RCC>
