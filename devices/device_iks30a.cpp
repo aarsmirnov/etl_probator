@@ -26,12 +26,15 @@ namespace {
 Device_IKS30A::Device_IKS30A(const QString &title, Device *parent)
     : Device(title, parent)
     , ui(new Ui::Device_IKS30A)
+#ifdef Q_OS_WIN
     , m_discoveryAgent(new QBluetoothDeviceDiscoveryAgent)
+#endif
 {
     ui->setupUi(this);
     setStyleSheet(utils::loadStyleSheet(kStylesheetPath));
     configUi();
 
+#ifdef Q_OS_WIN
     m_discoveryAgent->setLowEnergyDiscoveryTimeout(kDiscoveryTimeoutMs);
 
     QObject::connect(m_discoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered,
@@ -106,6 +109,7 @@ Device_IKS30A::Device_IKS30A(const QString &title, Device *parent)
             ui->lblMeasureStatus->setText("Выполняется измерение...");
         }
     });
+#endif
 
 //    QObject::connect(ui->cbDevices, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [this] {
 //        ui->pbConnect->setEnabled(ui->cbDevices->count() > 0);
