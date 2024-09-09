@@ -23,8 +23,8 @@
 
 #include "widgets/custombutton.h"
 
-#include "devices/device.h"
 #include "devices/device_iks30a.h"
+#include "devices/device_t2000.h"
 
 namespace  {
 
@@ -94,11 +94,26 @@ void UpdateStyle(QWidget* w)
 
 Device *createDevice(const QString &name)
 {
+    QVariantMap params;
+    Device *device { nullptr };
+
     if (name == "Измерение омического сопротивления ИКС-30А") {
-        return new Device_IKS30A(name);
+        device = new Device_IKS30A(name);
+    }
+    if (name == "Тангенс прямая") {
+        device = new Device_T2000(name);
+        params["mode"] = Device_T2000::Direct;
+    }
+    if (name == "Тангенс инверсная") {
+        device = new Device_T2000(name);
+        params["mode"] = Device_T2000::Inverse;
     }
 
-    return nullptr;
+    if (device != nullptr) {
+        device->setParams(params);
+    }
+
+    return device;
 }
 
 

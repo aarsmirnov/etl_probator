@@ -28,10 +28,9 @@ private:
     void configUi();
 
 private:
-    Ui::Device_IKS30A *ui;
+    Ui::Device_IKS30A                   *ui;
 
     QSvgWidget                          *m_spinner { nullptr };
-    QSvgWidget                          *m_spinner2 { nullptr };
     QBluetoothDeviceDiscoveryAgent      *m_discoveryAgent { nullptr };
     BluetoothIKSDevice                  *m_controller { nullptr };
     QMap<QString, QBluetoothDeviceInfo> m_devices;

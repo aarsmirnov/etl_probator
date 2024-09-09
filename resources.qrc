@@ -16,6 +16,7 @@
         <file>pics/minus-line-icon.svg</file>
         <file>pics/plus-line-icon.svg</file>
         <file>devices/style/iks30a_stylesheet.css</file>
+        <file>devices/style/t2000_stylesheet.css</file>
     </qresource>
     <qresource prefix="/ui">
         <file>style/window_min.svg</file>

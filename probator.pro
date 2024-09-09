@@ -18,6 +18,7 @@ SOURCES += \
     devices/bluetoothiksdevice.cpp \
     devices/device.cpp \
     devices/device_iks30a.cpp \
+    devices/device_t2000.cpp \
     logfile.cpp \
     main.cpp \
     mainwidget.cpp \
@@ -30,6 +31,7 @@ HEADERS += \
     devices/bluetoothiksdevice.h \
     devices/device.h \
     devices/device_iks30a.h \
+    devices/device_t2000.h \
     logfile.h \
     mainwidget.h \
     modbusmaster.h \
@@ -38,6 +40,7 @@ HEADERS += \
 
 FORMS += \
     devices/device_iks30a.ui \
+    devices/device_t2000.ui \
     mainwidget.ui
 
 DEFINES += DEV_MODE # for GUI development
