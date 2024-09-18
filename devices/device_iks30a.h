@@ -2,6 +2,7 @@
 #define DEVICE_IKS30A_H
 
 #include <QWidget>
+#include <QTimer>
 #include <qbluetoothdevicediscoveryagent.h>
 #include <qbluetoothuuid.h>
 
@@ -34,6 +35,7 @@ private:
     QBluetoothDeviceDiscoveryAgent      *m_discoveryAgent { nullptr };
     BluetoothIKSDevice                  *m_controller { nullptr };
     QMap<QString, QBluetoothDeviceInfo> m_devices;
+    QTimer                              *m_connectionTimer { nullptr };
 };
 
 #endif // DEVICE_IKS30A_H

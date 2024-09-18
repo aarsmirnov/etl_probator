@@ -10,6 +10,8 @@ namespace {
     const int kDiscoveryTimeoutMs = 5000;
     const QString kDeviceName("IKS-30A 0034");
 
+    constexpr int kConnectionTimeoutMs = 10 * 1000;
+
     const QMap<float, QString> kErrors = {
         { -1, "Отклонение тока уставки. \nВыбран неверный режим измерения или не подключены токовые зонды" },
         { -2, "Сопротивление велико для выбранного тока или не подключены потенциальные зонды" },
@@ -26,6 +28,7 @@ namespace {
 Device_IKS30A::Device_IKS30A(const QString &title, Device *parent)
     : Device(title, parent)
     , ui(new Ui::Device_IKS30A)
+    , m_connectionTimer(new QTimer(this))
 #ifdef Q_OS_WIN
     , m_discoveryAgent(new QBluetoothDeviceDiscoveryAgent)
 #endif
@@ -70,6 +73,9 @@ Device_IKS30A::Device_IKS30A(const QString &title, Device *parent)
     });
 
     QObject::connect(ui->pbConnect, &QPushButton::clicked, [this] {
+        ui->lblConnectionStatus->setVisible(true);
+        ui->lblConnectionStatus->setText("Подключение...");
+        m_connectionTimer->start();
         if (m_controller == nullptr) {
             const auto deviceInfo = m_devices.value(ui->cbDevices->currentData().toString());
             if (deviceInfo.isValid()) {
@@ -92,8 +98,6 @@ Device_IKS30A::Device_IKS30A(const QString &title, Device *parent)
                     }
 
                 });
-                ui->lblConnectionStatus->setVisible(true);
-                ui->lblConnectionStatus->setText("Подключение...");
                 m_controller->connect();
             }
         }
@@ -152,4 +156,11 @@ void Device_IKS30A::configUi()
 
     ui->wMeasure->setEnabled(false);
     ui->lblConnectionStatus->setVisible(false);
+
+    m_connectionTimer->setSingleShot(true);
+    m_connectionTimer->setInterval(kConnectionTimeoutMs);
+    QObject::connect(m_connectionTimer, &QTimer::timeout, [this] {
+        ui->lblConnectionStatus->setText("Не удалось подключиться к устройству");
+        m_controller->disconnect();
+    });
 }

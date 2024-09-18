@@ -19,6 +19,7 @@ public:
     ~BluetoothIKSDevice();
 
     bool connect();
+    void disconnect();
 
     void sendRequest(Command cmd, const QVariant param = QVariant());
 

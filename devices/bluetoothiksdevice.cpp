@@ -105,6 +105,11 @@ bool BluetoothIKSDevice::connect()
     return true;
 }
 
+void BluetoothIKSDevice::disconnect()
+{
+    m_controller->disconnectFromDevice();
+}
+
 void BluetoothIKSDevice::onServiceStateChanged(QLowEnergyService::ServiceState newState)
 {
     if (newState == QLowEnergyService::ServiceDiscovered) {
