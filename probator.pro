@@ -24,7 +24,8 @@ SOURCES += \
     mainwidget.cpp \
     modbusmaster.cpp \
     utils.cpp \
-    widgets/custombutton.cpp
+    widgets/custombutton.cpp \
+    widgets/imageviewer.cpp
 
 HEADERS += \
     core.h \
@@ -36,12 +37,14 @@ HEADERS += \
     mainwidget.h \
     modbusmaster.h \
     utils.h \
-    widgets/custombutton.h
+    widgets/custombutton.h \
+    widgets/imageviewer.h
 
 FORMS += \
     devices/device_iks30a.ui \
     devices/device_t2000.ui \
-    mainwidget.ui
+    mainwidget.ui \
+    widgets/imageviewer.ui
 
 DEFINES += DEV_MODE # for GUI development
 
@@ -56,8 +59,7 @@ CONFIG(release, debug|release) {
 
 win32 {
     DEFINES += BUILDDATE=\\\"$$system(date /t)\\\"
+    LIBS += -L$$PWD/external -lt2000
 } else {
     DEFINES += BUILDDATE=\\\"$$system(date +%Y)\\\"
 }
-
-LIBS += -L$$PWD/external -lt2000

@@ -11,8 +11,8 @@ namespace {
     const QString kStylesheetPath(":/main/devices/style/t2000_stylesheet.css");
 }
 
-Device_T2000::Device_T2000(const QString &title, QWidget *parent)
-    : Device(title, parent)
+Device_T2000::Device_T2000(const QString &title, const QPixmap &schema, QWidget *parent)
+    : Device(title, schema, parent)
     , ui(new Ui::Device_T2000)
     , m_protocolModel(new QStandardItemModel(parent))
 {

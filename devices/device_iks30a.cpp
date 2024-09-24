@@ -3,7 +3,11 @@
 
 #include "utils.h"
 
+#include "widgets/imageviewer.h"
+
 #include <QDebug>
+#include <QDateTime>
+#include <QShortcut>
 
 namespace {
     const QString kStylesheetPath(":/main/devices/style/iks30a_stylesheet.css");
@@ -25,10 +29,13 @@ namespace {
     };
 }
 
-Device_IKS30A::Device_IKS30A(const QString &title, Device *parent)
-    : Device(title, parent)
+Device_IKS30A::Device_IKS30A(const QString &title, const QPixmap &schema, Device *parent)
+    : Device(title, schema, parent)
     , ui(new Ui::Device_IKS30A)
     , m_connectionTimer(new QTimer(this))
+    , m_VnProtocolModel(new QStandardItemModel(parent))
+    , m_SnProtocolModel(new QStandardItemModel(parent))
+    , m_NnProtocolModel(new QStandardItemModel(parent))
 #ifdef Q_OS_WIN
     , m_discoveryAgent(new QBluetoothDeviceDiscoveryAgent)
 #endif
@@ -82,21 +89,15 @@ Device_IKS30A::Device_IKS30A(const QString &title, Device *parent)
                 m_controller = new BluetoothIKSDevice(deviceInfo, this);
                 QObject::connect(m_controller, &BluetoothIKSDevice::connected, [this] {
                     ui->lblConnectionStatus->setText("Соединение установлено");
-                    ui->wMeasure->setEnabled(true);
+                    ui->pbMeasure->setEnabled(true);
                 });
                 QObject::connect(m_controller, &BluetoothIKSDevice::disconnected, [this] {
-                    ui->wMeasure->setEnabled(false);
+                    ui->pbMeasure->setEnabled(false);
                 });
                 QObject::connect(m_controller, &BluetoothIKSDevice::responseReceived, [this] (const QVariant &response) {
                  ui->stackedWidget->setCurrentIndex(1);
                     float result = response.toFloat();
-                    if (result < 0) {
-                        //ui->lblMeasureResult->setText(kErrors.value(result, "Неизвестная ошибка"));
-                    }
-                    else {
-                        //ui->lblMeasureResult->setText(QString::number(result * 1000.0f) + " мОм");
-                    }
-
+                    setMeasureResult(result);
                 });
                 m_controller->connect();
             }
@@ -105,15 +106,17 @@ Device_IKS30A::Device_IKS30A(const QString &title, Device *parent)
 
     QObject::connect(ui->pbMeasure, &QPushButton::clicked, [this] {
         if (m_controller) {
-            //const auto measureType = ui->cbMeasureType->currentIndex() ? BluetoothIKSDevice::InductiveResistance
-//                                                                       : BluetoothIKSDevice::ActiveResistance;
+            const auto measureType = ui->chbMeasureType->isChecked() ? BluetoothIKSDevice::InductiveResistance
+                                                                     : BluetoothIKSDevice::ActiveResistance;
             const QVariant param = ui->cbAmperage->currentData();
-            m_controller->sendRequest(BluetoothIKSDevice::ActiveResistance, param);
-            ui->stackedWidget->setCurrentIndex(0);
-            //ui->lblMeasureStatus->setText("Выполняется измерение...");
+            m_controller->sendRequest(measureType, param);
+            //ui->stackedWidget->setCurrentIndex(0);
+            ui->lblMeasureStatus->setText("Выполняется измерение...");
         }
     });
 #endif
+
+
 
 //    QObject::connect(ui->cbDevices, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [this] {
 //        ui->pbConnect->setEnabled(ui->cbDevices->count() > 0);
@@ -139,13 +142,79 @@ void Device_IKS30A::configUi()
     ui->cbAmperage->addItem("400мкА", 0.4f);
     ui->cbAmperage->addItem("80мкА", 0.08f);
 
-//    ui->cbMeasureType->addItem("активное");
-//    ui->cbMeasureType->addItem("индуктивное");
+    ui->cbMaterial->addItem("Медь", 235.0f);
+    ui->cbMaterial->addItem("Алюминий", 245.0f);
+
+    ui->cbType->addItem("Периодические");
 
     m_spinner = new QSvgWidget(":/ui/style/spinner.svg");
     m_spinner->setVisible(false);
     m_spinner->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     ui->horizontalLayout_5->addWidget(m_spinner);
+
+    m_VnProtocolModel->setHorizontalHeaderLabels(QStringList() << "Дата"
+                                                               << "Объект"
+                                                               << "Вид испытаний"
+                                                               << "Зав. №"
+                                                               << "A0"
+                                                               << "B0"
+                                                               << "C0"
+                                                               << QString { "A0 (t=%1)" }.arg(ui->sbTemp->value())
+                                                               << QString { "B0 (t=%1)" }.arg(ui->sbTemp->value())
+                                                               << QString { "C0 (t=%1)" }.arg(ui->sbTemp->value())
+                                                               << "Оператор"
+                                                               << "Время");
+    ui->tvVnProtocol->setModel(m_VnProtocolModel);
+    ui->tvVnProtocol->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->tvVnProtocol->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->tvVnProtocol->horizontalHeader()->setStretchLastSection(true);
+    ui->tvVnProtocol->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->tvVnProtocol->verticalHeader()->setFixedWidth(40);
+    ui->tvVnProtocol->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
+    ui->tvVnProtocol->verticalHeader()->setVisible(true);
+
+    m_SnProtocolModel->setHorizontalHeaderLabels(QStringList() << "Дата"
+                                                 << "Объект"
+                                                 << "Вид испытаний"
+                                                 << "Зав. №"
+                                                 << "A0"
+                                                 << "B0"
+                                                 << "C0"
+                                                 << QString { "A0 (t=%1)" }.arg(ui->sbTemp->value())
+                                                 << QString { "B0 (t=%1)" }.arg(ui->sbTemp->value())
+                                                 << QString { "C0 (t=%1)" }.arg(ui->sbTemp->value())
+                                                 << "Оператор"
+                                                 << "Время");
+    ui->tvSnProtocol->setModel(m_SnProtocolModel);
+    ui->tvSnProtocol->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->tvSnProtocol->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->tvSnProtocol->horizontalHeader()->setStretchLastSection(true);
+    ui->tvSnProtocol->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->tvSnProtocol->verticalHeader()->setFixedWidth(40);
+    ui->tvSnProtocol->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
+    ui->tvSnProtocol->verticalHeader()->setVisible(true);
+
+    m_NnProtocolModel->setHorizontalHeaderLabels(QStringList() << "Дата"
+                                                 << "Объект"
+                                                 << "Вид испытаний"
+                                                 << "Зав. №"
+                                                 << "A0"
+                                                 << "B0"
+                                                 << "C0"
+                                                 << QString { "A0 (t=%1)" }.arg(ui->sbTemp->value())
+                                                 << QString { "B0 (t=%1)" }.arg(ui->sbTemp->value())
+                                                 << QString { "C0 (t=%1)" }.arg(ui->sbTemp->value())
+                                                 << "Оператор"
+                                                 << "Время");
+    ui->tvNnProtocol->setModel(m_NnProtocolModel);
+    ui->tvNnProtocol->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->tvNnProtocol->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->tvNnProtocol->horizontalHeader()->setStretchLastSection(true);
+    ui->tvNnProtocol->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->tvNnProtocol->verticalHeader()->setFixedWidth(40);
+    ui->tvNnProtocol->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
+    ui->tvNnProtocol->verticalHeader()->setVisible(true);
+
 
 //    m_spinner2 = new QSvgWidget(":/ui/style/spinner2.svg", this);
 //    m_spinner2->setVisible(true);
@@ -154,8 +223,63 @@ void Device_IKS30A::configUi()
 
     ui->pbConnect->setEnabled(false);
 
-    ui->wMeasure->setEnabled(false);
+    //ui->wMeasure->setEnabled(false);
+    ui->pbMeasure->setEnabled(false);
     ui->lblConnectionStatus->setVisible(false);
+
+    setMeasureResult();
+
+    QObject::connect(ui->tbHelp, &QToolButton::clicked, [this] {
+        ImageViewer viewer;
+        viewer.setWindowTitle(QObject::tr("Просмотр схемы"));
+        viewer.setImage(schema());
+        viewer.exec();
+    });
+
+    QObject::connect(ui->sbTemp, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [this] (int value) {
+        const auto model = getCurrentProtocolModel();
+        if (model == nullptr) {
+            return;
+        }
+
+        model->horizontalHeaderItem(7)->setText(QString { "A0 (t=%1)" }.arg(value));
+        model->horizontalHeaderItem(8)->setText(QString { "B0 (t=%1)" }.arg(value));
+        model->horizontalHeaderItem(9)->setText(QString { "C0 (t=%1)" }.arg(value));
+
+        for (int i = 0; i < model->rowCount(); i++) {
+            model->item(i, 7)->setText(QString::number(getResistanceForTemp(m_lastMeasureResult)));
+            model->item(i, 8)->setText(QString::number(getResistanceForTemp(m_lastMeasureResult)));
+            model->item(i, 9)->setText(QString::number(getResistanceForTemp(m_lastMeasureResult)));
+        }
+    });
+
+    QObject::connect(ui->cbMaterial, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [this] {
+        const auto model = getCurrentProtocolModel();
+        if (model == nullptr) {
+            return;
+        }
+
+        for (int i = 0; i < model->rowCount(); i++) {
+            model->item(i, 7)->setText(QString::number(getResistanceForTemp(m_lastMeasureResult)));
+            model->item(i, 8)->setText(QString::number(getResistanceForTemp(m_lastMeasureResult)));
+            model->item(i, 9)->setText(QString::number(getResistanceForTemp(m_lastMeasureResult)));
+        }
+    });
+
+    QObject::connect(ui->pbProtocol, &QPushButton::clicked, [this] {
+        insertProtocolRecords();
+    });
+
+    auto protocolRecordDeleteHotkey = new QShortcut(Qt::Key_Delete, this);
+    QObject::connect(protocolRecordDeleteHotkey, &QShortcut::activated, [this] {
+        removeProtocolRecords();
+    });
+
+    QObject::connect(m_VnProtocolModel, &QStandardItemModel::itemChanged, [this] (QStandardItem *item) {
+        if (item->column() == 4 || item->column() == 5 || item->column() == 6) {
+            m_VnProtocolModel->item(item->row(), item->column() + 3)->setText(QString::number(getResistanceForTemp(m_lastMeasureResult)));
+        }
+    });
 
     m_connectionTimer->setSingleShot(true);
     m_connectionTimer->setInterval(kConnectionTimeoutMs);
@@ -163,4 +287,111 @@ void Device_IKS30A::configUi()
         ui->lblConnectionStatus->setText("Не удалось подключиться к устройству");
         m_controller->disconnect();
     });
+}
+
+void Device_IKS30A::setMeasureResult(float val)
+{
+    if (val >= 0) {
+        m_lastMeasureResult = val;
+    }
+    const QString result = (val < 0) ? "----" : QString::number(val * 100000.0f);
+    ui->lblMeasureResult->setText(result + " мкОм");
+}
+
+void Device_IKS30A::insertProtocolRecords()
+{
+    const auto model = getCurrentProtocolModel();
+    if (model == nullptr) {
+        return;
+    }
+
+    const auto currentDateTime = QDateTime::currentDateTime();
+    const auto date = new QStandardItem(currentDateTime.toString("dd.MM.yyyy"));
+    date->setTextAlignment(Qt::AlignCenter);
+    date->setEditable(false);
+
+    const auto object = new QStandardItem(ui->leObject->text());
+    object->setTextAlignment(Qt::AlignCenter);
+    object->setEditable(false);
+
+    const auto type = new QStandardItem(ui->cbType->currentText());
+    type->setTextAlignment(Qt::AlignCenter);
+    type->setEditable(false);
+
+    const auto serial = new QStandardItem(ui->leSerialNumber->text());
+    serial->setTextAlignment(Qt::AlignCenter);
+    serial->setEditable(false);
+
+    const auto a0 = new QStandardItem;
+    a0->setTextAlignment(Qt::AlignCenter);
+
+    const auto b0 = new QStandardItem;
+    b0->setTextAlignment(Qt::AlignCenter);
+
+    const auto c0 = new QStandardItem;
+    c0->setTextAlignment(Qt::AlignCenter);
+
+    const auto a0_t = new QStandardItem(QString::number(getResistanceForTemp(m_lastMeasureResult)));
+    a0_t->setTextAlignment(Qt::AlignCenter);
+    a0_t->setEditable(false);
+
+    const auto b0_t = new QStandardItem(QString::number(getResistanceForTemp(m_lastMeasureResult)));
+    b0_t->setTextAlignment(Qt::AlignCenter);
+    b0_t->setEditable(false);
+
+    const auto c0_t = new QStandardItem(QString::number(getResistanceForTemp(m_lastMeasureResult)));
+    c0_t->setTextAlignment(Qt::AlignCenter);
+    c0_t->setEditable(false);
+
+    const auto op = new QStandardItem(ui->leOperator->text());
+    op->setTextAlignment(Qt::AlignCenter);
+    op->setEditable(false);
+
+    const auto time = new QStandardItem(currentDateTime.toString("hh:mm"));
+    time->setTextAlignment(Qt::AlignCenter);
+    time->setEditable(false);
+
+    model->appendRow(QList<QStandardItem*>() << date
+                                             << object
+                                             << type
+                                             << serial
+                                             << a0
+                                             << b0
+                                             << c0
+                                             << a0_t
+                                             << b0_t
+                                             << c0_t
+                                             << op
+                                             << time);
+}
+
+void Device_IKS30A::removeProtocolRecords()
+{
+    const QModelIndexList selection = ui->tvVnProtocol->selectionModel()->selectedRows();
+    for (const auto &selectedIndex : selection) {
+        if (selectedIndex.isValid()) {
+            m_VnProtocolModel->removeRow(selectedIndex.row());
+        }
+    }
+}
+
+float Device_IKS30A::getResistanceForTemp(float baseResistance)
+{
+    const float k = ui->cbMaterial->currentData().toFloat();
+    const float result = (baseResistance * (k + 20.0f)) / (k + static_cast<float>(ui->sbTemp->value()));
+    return result;
+}
+
+QStandardItemModel *Device_IKS30A::getCurrentProtocolModel()
+{
+    switch (ui->twProtocol->currentIndex()) {
+    case 0:
+        return m_VnProtocolModel;
+    case 1:
+        return m_SnProtocolModel;
+    case 2:
+        return m_NnProtocolModel;
+    default:
+        return nullptr;
+    }
 }

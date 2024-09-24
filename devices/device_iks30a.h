@@ -7,6 +7,7 @@
 #include <qbluetoothuuid.h>
 
 #include <QtSvg/QSvgWidget>
+#include <QStandardItemModel>
 
 #include "device.h"
 #include "bluetoothiksdevice.h"
@@ -20,13 +21,18 @@ class Device_IKS30A : public Device
     Q_OBJECT
 
 public:
-    explicit Device_IKS30A(const QString &title, Device *parent = nullptr);
+    explicit Device_IKS30A(const QString &title, const QPixmap &schema, Device *parent = nullptr);
     ~Device_IKS30A();
 
     QString name() const override { return QStringLiteral("ИКС30А"); }
 
 private:
     void configUi();
+    void setMeasureResult(float val = -1);
+    void insertProtocolRecords();
+    void removeProtocolRecords();
+    float getResistanceForTemp(float baseResistance);
+    QStandardItemModel *getCurrentProtocolModel();
 
 private:
     Ui::Device_IKS30A                   *ui;
@@ -36,6 +42,11 @@ private:
     BluetoothIKSDevice                  *m_controller { nullptr };
     QMap<QString, QBluetoothDeviceInfo> m_devices;
     QTimer                              *m_connectionTimer { nullptr };
+    float                               m_lastMeasureResult { 0.0f };
+
+    QStandardItemModel                  *m_VnProtocolModel;
+    QStandardItemModel                  *m_SnProtocolModel;
+    QStandardItemModel                  *m_NnProtocolModel;
 };
 
 #endif // DEVICE_IKS30A_H

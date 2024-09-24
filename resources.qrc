@@ -40,5 +40,17 @@
         <file>style/scheme/sch1.svg</file>
         <file>style/page_arrows.svg</file>
         <file>style/spinner.svg</file>
+        <file>style/voltage_symbol.svg</file>
+        <file>style/voltage_symbol_on.svg</file>
+        <file>style/current_symbol_on.svg</file>
+        <file>style/current_symbol.svg</file>
+        <file>style/doors_symbol.svg</file>
+        <file>style/emergency_symbol.svg</file>
+        <file>style/gnd_symbol.svg</file>
+        <file>style/work_gnd_symbol_on.svg</file>
+        <file>style/doors_symbol_on.svg</file>
+        <file>style/emergency_symbol_on.svg</file>
+        <file>style/gnd_symbol_on.svg</file>
+        <file>style/work_gnd_symbol.svg</file>
     </qresource>
 </RCC>

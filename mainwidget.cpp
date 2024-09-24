@@ -17,6 +17,9 @@
 #include <QMenuBar>
 #include <QDesktopServices>
 #include <QUrl>
+#include <QPixmap>
+#include <QDir>
+#include <QFileInfo>
 
 #include "core.h"
 #include "logfile.h"
@@ -92,20 +95,20 @@ void UpdateStyle(QWidget* w)
 
 }
 
-Device *createDevice(const QString &name)
+Device *createDevice(const QString &name, const QPixmap &schema)
 {
     QVariantMap params;
     Device *device { nullptr };
 
     if (name == "Четырехпроводная схема измерения") {
-        device = new Device_IKS30A(name);
+        device = new Device_IKS30A(name, schema);
     }
     if (name == "Тангенс прямая") {
-        device = new Device_T2000(name);
+        device = new Device_T2000(name, schema);
         params["mode"] = Device_T2000::Direct;
     }
     if (name == "Тангенс инверсная") {
-        device = new Device_T2000(name);
+        device = new Device_T2000(name, schema);
         params["mode"] = Device_T2000::Inverse;
     }
 
@@ -116,6 +119,22 @@ Device *createDevice(const QString &name)
     return device;
 }
 
+QPixmap loadSchemaImage(const QString& schema)
+{
+    QPixmap image;
+
+    QFileInfo fi(QString{ "schemes/%1" }.arg(schema));
+    const QDir dirName = fi.absoluteDir();
+    const QString fileName = fi.baseName();
+    for (const auto &entry : dirName.entryInfoList()) {
+        if (entry.baseName() == fi.baseName()) {
+            image.load(fi.absoluteFilePath());
+            break;
+        }
+    }
+
+    return image;
+}
 
 #include <QDebug>
 
@@ -371,6 +390,9 @@ class MainWidgetPrivate
 
         loadDataFromCore();
         setControlsEnabled(false);
+
+        ui->tbWorkGnd->setProperty("passed", 1);
+        UpdateStyle(ui->tbWorkGnd);
     }
 
     int getGridColumnCount(int total)
@@ -405,7 +427,8 @@ class MainWidgetPrivate
     {
         clearDeviceWidget();
 
-        auto widget = createDevice(m_currentSchema);
+        auto widget = createDevice(m_currentSchema, loadSchemaImage(QString{ "%1/%2" }.arg(m_currentTest)
+                                                                                      .arg(m_currentSchema)));
         if (widget == nullptr) {
             return;
         }

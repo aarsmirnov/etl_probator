@@ -20,7 +20,7 @@ public:
         Inverse,
     };
 
-    explicit Device_T2000(const QString &title, QWidget *parent = nullptr);
+    explicit Device_T2000(const QString &title, const QPixmap &schema, QWidget *parent = nullptr);
     ~Device_T2000();
 
     QString name() const override { return QStringLiteral("Тангенс-2000"); }

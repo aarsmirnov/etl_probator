@@ -10,7 +10,7 @@ class Device : public QWidget
 
 public:
     explicit Device(QWidget *parent = nullptr);
-    explicit Device(const QString &title, QWidget *parent = nullptr);
+    explicit Device(const QString &title, const QPixmap &schema, QWidget *parent = nullptr);
     ~Device();
 
     virtual QString name() const = 0;
@@ -20,12 +20,14 @@ public:
 
 protected:
     QString title() const;
+    QPixmap schema() const;
 
 signals:
     void eventOccured(const QString &text);
 
 private:
     QString     m_title;
+    QPixmap     m_schema;
 };
 
 #endif // DEVICE_H

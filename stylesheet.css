@@ -155,22 +155,82 @@ QScrollArea
     border-radius: 4px;
 }
 
-#indicationFrame QToolButton,
+/* Indications */
+
+#wIndications QToolButton,
 #switchFrame
 {
-    background: #dee1eb;
+    background: #b3b3b3;
     border-radius: 10px;
+    padding: 5px;
+    qproperty-iconSize: 32px
 }
 
-#indicationFrame QToolButton[passed="1"]
+#wIndications QToolButton[passed="1"]
 {
-    background: #c4ff0e;
+    background: #327a36;
 }
 
-#indicationFrame QToolButton[passed="0"]
+#wIndications QToolButton[passed="0"]
 {
-    background: #ff7b80;
+    background: #a11a18;
 }
+
+#tbVoltage {
+    qproperty-icon: url(":/ui/style/voltage_symbol.svg");
+}
+
+#tbVoltage[passed="0"],
+#tbVoltage[passed="1"] {
+    qproperty-icon: url(":/ui/style/voltage_symbol_on.svg");
+}
+
+#tbCurrent {
+    qproperty-icon: url(":/ui/style/current_symbol.svg");
+}
+
+#tbCurrent[passed="0"],
+#tbCurrent[passed="1"] {
+    qproperty-icon: url(":/ui/style/current_symbol_on.svg");
+}
+
+#tbDoors {
+    qproperty-icon: url(":/ui/style/doors_symbol.svg");
+}
+
+#tbDoors[passed="0"],
+#tbDoors[passed="1"] {
+    qproperty-icon: url(":/ui/style/doors_symbol_on.svg");
+}
+
+#tbEmergency {
+    qproperty-icon: url(":/ui/style/emergency_symbol.svg");
+}
+
+#tbEmergency[passed="0"],
+#tbEmergency[passed="1"] {
+    qproperty-icon: url(":/ui/style/emergency_symbol_on.svg");
+}
+
+#tbGnd {
+    qproperty-icon: url(":/ui/style/gnd_symbol.svg");
+}
+
+#tbGnd[passed="0"],
+#tbGnd[passed="1"] {
+    qproperty-icon: url(":/ui/style/gnd_symbol_on.svg");
+}
+
+#tbWorkGnd {
+    qproperty-icon: url(":/ui/style/work_gnd_symbol.svg");
+}
+
+#tbWorkGnd[passed="0"],
+#tbWorkGnd[passed="1"] {
+    qproperty-icon: url(":/ui/style/work_gnd_symbol_on.svg");
+}
+
+/* --- */
 
 #startPushButton,
 #stopPushButton,
