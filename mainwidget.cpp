@@ -97,7 +97,7 @@ Device *createDevice(const QString &name)
     QVariantMap params;
     Device *device { nullptr };
 
-    if (name == "Измерение омического сопротивления ИКС-30А") {
+    if (name == "Четырехпроводная схема измерения") {
         device = new Device_IKS30A(name);
     }
     if (name == "Тангенс прямая") {

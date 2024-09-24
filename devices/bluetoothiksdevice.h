@@ -8,6 +8,7 @@
 class BluetoothIKSDevice : public QObject
 {
     Q_OBJECT
+
 public:
     enum Command {
         Test,

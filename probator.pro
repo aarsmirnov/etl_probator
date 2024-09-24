@@ -56,7 +56,8 @@ CONFIG(release, debug|release) {
 
 win32 {
     DEFINES += BUILDDATE=\\\"$$system(date /t)\\\"
-    LIBS += -luser32 -lBthprops
 } else {
     DEFINES += BUILDDATE=\\\"$$system(date +%Y)\\\"
 }
+
+LIBS += -L$$PWD/external -lt2000

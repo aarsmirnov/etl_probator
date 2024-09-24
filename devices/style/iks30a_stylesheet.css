@@ -19,11 +19,13 @@ QPushButton:hover {
     background: #F2F2F2;
 }
 
-QComboBox {
+QComboBox,
+QLineEdit {
     height: 30px;
     background: white;
     border: 1px solid #E6E6E6;
     border-radius: 3px;
+    min-width: 250px;
 }
 
 QComboBox::drop-down
@@ -40,4 +42,3 @@ QComboBox::drop-down
     color: black;
     font-size: 32px;
 }
-

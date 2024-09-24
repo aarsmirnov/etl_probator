@@ -88,13 +88,13 @@ Device_IKS30A::Device_IKS30A(const QString &title, Device *parent)
                     ui->wMeasure->setEnabled(false);
                 });
                 QObject::connect(m_controller, &BluetoothIKSDevice::responseReceived, [this] (const QVariant &response) {
-                    ui->stackedWidget_2->setCurrentIndex(1);
+                 ui->stackedWidget->setCurrentIndex(1);
                     float result = response.toFloat();
                     if (result < 0) {
-                        ui->lblMeasureResult->setText(kErrors.value(result, "Неизвестная ошибка"));
+                        //ui->lblMeasureResult->setText(kErrors.value(result, "Неизвестная ошибка"));
                     }
                     else {
-                        ui->lblMeasureResult->setText(QString::number(result * 1000.0f) + " мОм");
+                        //ui->lblMeasureResult->setText(QString::number(result * 1000.0f) + " мОм");
                     }
 
                 });
@@ -105,12 +105,12 @@ Device_IKS30A::Device_IKS30A(const QString &title, Device *parent)
 
     QObject::connect(ui->pbMeasure, &QPushButton::clicked, [this] {
         if (m_controller) {
-            const auto measureType = ui->cbMeasureType->currentIndex() ? BluetoothIKSDevice::InductiveResistance
-                                                                       : BluetoothIKSDevice::ActiveResistance;
+            //const auto measureType = ui->cbMeasureType->currentIndex() ? BluetoothIKSDevice::InductiveResistance
+//                                                                       : BluetoothIKSDevice::ActiveResistance;
             const QVariant param = ui->cbAmperage->currentData();
-            m_controller->sendRequest(measureType, param);
-            ui->stackedWidget_2->setCurrentIndex(0);
-            ui->lblMeasureStatus->setText("Выполняется измерение...");
+            m_controller->sendRequest(BluetoothIKSDevice::ActiveResistance, param);
+            ui->stackedWidget->setCurrentIndex(0);
+            //ui->lblMeasureStatus->setText("Выполняется измерение...");
         }
     });
 #endif
@@ -139,8 +139,8 @@ void Device_IKS30A::configUi()
     ui->cbAmperage->addItem("400мкА", 0.4f);
     ui->cbAmperage->addItem("80мкА", 0.08f);
 
-    ui->cbMeasureType->addItem("активное");
-    ui->cbMeasureType->addItem("индуктивное");
+//    ui->cbMeasureType->addItem("активное");
+//    ui->cbMeasureType->addItem("индуктивное");
 
     m_spinner = new QSvgWidget(":/ui/style/spinner.svg");
     m_spinner->setVisible(false);
