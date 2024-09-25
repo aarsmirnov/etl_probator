@@ -19,6 +19,17 @@ void ImageViewer::setImage(const QPixmap &image)
     ui->lblImage->setPixmap(image);
 }
 
+void ImageViewer::showEvent(QShowEvent *event)
+{
+    if (ui->lblImage->pixmap()->isNull()) {
+        ui->lblImage->setText(QObject::tr("Изображение не найдено"));
+    }
+    else {
+        ui->lblImage->setText("");
+    }
+    QDialog::showEvent(event);
+}
+
 void ImageViewer::configUi()
 {
 

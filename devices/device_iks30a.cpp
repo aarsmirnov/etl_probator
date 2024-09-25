@@ -53,12 +53,14 @@ Device_IKS30A::Device_IKS30A(const QString &title, const QPixmap &schema, Device
                             const auto address = info.address().toString();
                             m_devices.insert(address, info);
                             ui->cbDevices->addItem(info.name(), address);
+                            pushEvent(QString{ "Найдено устройство %1 с адресом %2" }.arg(info.name()).arg(address));
                         }
     });
 
     QObject::connect(m_discoveryAgent, QOverload<QBluetoothDeviceDiscoveryAgent::Error>::of(&QBluetoothDeviceDiscoveryAgent::error),
-                     [] (QBluetoothDeviceDiscoveryAgent::Error error) {
+                     [this] (QBluetoothDeviceDiscoveryAgent::Error error) {
         qDebug() << "Bluetooth discovery error:" << error;
+        pushEvent(QString{ "Ошибка при поиске устройств: %1" }.arg(m_discoveryAgent->errorString()));
     });
 
     QObject::connect(m_discoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, [this] () {
@@ -67,6 +69,7 @@ Device_IKS30A::Device_IKS30A(const QString &title, const QPixmap &schema, Device
         }
 
         ui->pbConnect->setEnabled(ui->cbDevices->count() > 0);
+        pushEvent("Поиск устройств завершен");
     });
 
     QObject::connect(ui->pbUpdate, &QPushButton::clicked, [this] {
@@ -77,11 +80,13 @@ Device_IKS30A::Device_IKS30A(const QString &title, const QPixmap &schema, Device
         m_devices.clear();
         m_spinner->setVisible(true);
         m_discoveryAgent->start();
+        pushEvent("Поиск доступных устройств");
     });
 
     QObject::connect(ui->pbConnect, &QPushButton::clicked, [this] {
         ui->lblConnectionStatus->setVisible(true);
         ui->lblConnectionStatus->setText("Подключение...");
+        pushEvent("Выполняется подключение к устройству");
         m_connectionTimer->start();
         if (m_controller == nullptr) {
             const auto deviceInfo = m_devices.value(ui->cbDevices->currentData().toString());
@@ -89,15 +94,20 @@ Device_IKS30A::Device_IKS30A(const QString &title, const QPixmap &schema, Device
                 m_controller = new BluetoothIKSDevice(deviceInfo, this);
                 QObject::connect(m_controller, &BluetoothIKSDevice::connected, [this] {
                     ui->lblConnectionStatus->setText("Соединение установлено");
+                    pushEvent("Устройство успешно подключено");
                     ui->pbMeasure->setEnabled(true);
                 });
                 QObject::connect(m_controller, &BluetoothIKSDevice::disconnected, [this] {
+                    if (ui->pbMeasure->isEnabled()) {
+                        pushEvent("Устройство отключено");
+                    }
                     ui->pbMeasure->setEnabled(false);
                 });
                 QObject::connect(m_controller, &BluetoothIKSDevice::responseReceived, [this] (const QVariant &response) {
-                 ui->stackedWidget->setCurrentIndex(1);
+                    ui->stackedWidget->setCurrentIndex(1);
                     float result = response.toFloat();
                     setMeasureResult(result);
+                    pushEvent("Получены данные проведенного измерение");
                 });
                 m_controller->connect();
             }
@@ -106,17 +116,17 @@ Device_IKS30A::Device_IKS30A(const QString &title, const QPixmap &schema, Device
 
     QObject::connect(ui->pbMeasure, &QPushButton::clicked, [this] {
         if (m_controller) {
+            m_measureResult[ui->cbPhase->currentData().toInt()] = 0.0f;
             const auto measureType = ui->chbMeasureType->isChecked() ? BluetoothIKSDevice::InductiveResistance
                                                                      : BluetoothIKSDevice::ActiveResistance;
             const QVariant param = ui->cbAmperage->currentData();
             m_controller->sendRequest(measureType, param);
+            pushEvent("Выполняется измерение");
             //ui->stackedWidget->setCurrentIndex(0);
-            ui->lblMeasureStatus->setText("Выполняется измерение...");
+            //ui->lblMeasureStatus->setText("Выполняется измерение...");
         }
     });
 #endif
-
-
 
 //    QObject::connect(ui->cbDevices, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [this] {
 //        ui->pbConnect->setEnabled(ui->cbDevices->count() > 0);
@@ -164,6 +174,12 @@ void Device_IKS30A::configUi()
     ui->cbMaterial->addItem("Алюминий", 245.0f);
 
     ui->cbType->addItem("Периодические");
+    ui->cbType->addItem("После ремонта");
+    ui->cbType->addItem("Заводские");
+
+    ui->cbPhase->addItem("A0", 4);
+    ui->cbPhase->addItem("B0", 5);
+    ui->cbPhase->addItem("C0", 6);
 
     m_spinner = new QSvgWidget(":/ui/style/spinner.svg");
     m_spinner->setVisible(false);
@@ -233,7 +249,6 @@ void Device_IKS30A::configUi()
     ui->tvNnProtocol->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
     ui->tvNnProtocol->verticalHeader()->setVisible(true);
 
-
 //    m_spinner2 = new QSvgWidget(":/ui/style/spinner2.svg", this);
 //    m_spinner2->setVisible(true);
 //    m_spinner2->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -265,11 +280,17 @@ void Device_IKS30A::configUi()
         model->horizontalHeaderItem(9)->setText(QString { "C0 (t=%1)" }.arg(value));
 
         for (int i = 0; i < model->rowCount(); i++) {
-            model->item(i, 7)->setText(QString::number(getResistanceForTemp(m_lastMeasureResult)));
-            model->item(i, 8)->setText(QString::number(getResistanceForTemp(m_lastMeasureResult)));
-            model->item(i, 9)->setText(QString::number(getResistanceForTemp(m_lastMeasureResult)));
+            model->item(i, 7)->setText(QString::number(getResistanceForTemp(m_measureResult.value(4))));
+            model->item(i, 8)->setText(QString::number(getResistanceForTemp(m_measureResult.value(5))));
+            model->item(i, 9)->setText(QString::number(getResistanceForTemp(m_measureResult.value(6))));
         }
     });
+
+
+    QObject::connect(ui->cbPhase, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [this] {
+        setMeasureResult(m_measureResult.value(ui->cbPhase->currentData().toInt(), -1));
+    });
+
 
     QObject::connect(ui->cbMaterial, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [this] {
         const auto model = getCurrentProtocolModel();
@@ -278,9 +299,9 @@ void Device_IKS30A::configUi()
         }
 
         for (int i = 0; i < model->rowCount(); i++) {
-            model->item(i, 7)->setText(QString::number(getResistanceForTemp(m_lastMeasureResult)));
-            model->item(i, 8)->setText(QString::number(getResistanceForTemp(m_lastMeasureResult)));
-            model->item(i, 9)->setText(QString::number(getResistanceForTemp(m_lastMeasureResult)));
+            model->item(i, 7)->setText(QString::number(getResistanceForTemp(m_measureResult.value(4))));
+            model->item(i, 8)->setText(QString::number(getResistanceForTemp(m_measureResult.value(5))));
+            model->item(i, 9)->setText(QString::number(getResistanceForTemp(m_measureResult.value(6))));
         }
     });
 
@@ -297,7 +318,8 @@ void Device_IKS30A::configUi()
 
     QObject::connect(m_VnProtocolModel, &QStandardItemModel::itemChanged, [this] (QStandardItem *item) {
         if (item->column() == 4 || item->column() == 5 || item->column() == 6) {
-            m_VnProtocolModel->item(item->row(), item->column() + 3)->setText(QString::number(getResistanceForTemp(m_lastMeasureResult)));
+            m_VnProtocolModel->item(item->row(), item->column() + 3)->setText(
+                QString::number(getResistanceForTemp(m_measureResult.value(item->column()))));
         }
     });
 
@@ -305,6 +327,7 @@ void Device_IKS30A::configUi()
     m_connectionTimer->setInterval(kConnectionTimeoutMs);
     QObject::connect(m_connectionTimer, &QTimer::timeout, [this] {
         ui->lblConnectionStatus->setText("Не удалось подключиться к устройству");
+        pushEvent("Не удалось подключиться к устройству");
         m_controller->disconnect();
     });
 }
@@ -312,7 +335,7 @@ void Device_IKS30A::configUi()
 void Device_IKS30A::setMeasureResult(float val)
 {
     if (val >= 0) {
-        m_lastMeasureResult = val;
+        m_measureResult[ui->cbPhase->currentData().toInt()] = val;
     }
     const QString result = (val < 0) ? "----" : QString::number(val * 100000.0f);
     ui->lblMeasureResult->setText(result + " мкОм");
@@ -342,24 +365,27 @@ void Device_IKS30A::insertProtocolRecords()
     serial->setTextAlignment(Qt::AlignCenter);
     serial->setEditable(false);
 
-    const auto a0 = new QStandardItem;
+    const auto a0 = new QStandardItem(QString::number(m_measureResult.value(4)));
     a0->setTextAlignment(Qt::AlignCenter);
+    a0->setEditable(false);
 
-    const auto b0 = new QStandardItem;
+    const auto b0 = new QStandardItem(QString::number(m_measureResult.value(5)));
     b0->setTextAlignment(Qt::AlignCenter);
+    b0->setEditable(false);
 
-    const auto c0 = new QStandardItem;
+    const auto c0 = new QStandardItem(QString::number(m_measureResult.value(6)));
     c0->setTextAlignment(Qt::AlignCenter);
+    c0->setEditable(false);
 
-    const auto a0_t = new QStandardItem(QString::number(getResistanceForTemp(m_lastMeasureResult)));
+    const auto a0_t = new QStandardItem(QString::number(getResistanceForTemp(m_measureResult.value(4))));
     a0_t->setTextAlignment(Qt::AlignCenter);
     a0_t->setEditable(false);
 
-    const auto b0_t = new QStandardItem(QString::number(getResistanceForTemp(m_lastMeasureResult)));
+    const auto b0_t = new QStandardItem(QString::number(getResistanceForTemp(m_measureResult.value(5))));
     b0_t->setTextAlignment(Qt::AlignCenter);
     b0_t->setEditable(false);
 
-    const auto c0_t = new QStandardItem(QString::number(getResistanceForTemp(m_lastMeasureResult)));
+    const auto c0_t = new QStandardItem(QString::number(getResistanceForTemp(m_measureResult.value(6))));
     c0_t->setTextAlignment(Qt::AlignCenter);
     c0_t->setEditable(false);
 

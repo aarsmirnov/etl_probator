@@ -48,6 +48,8 @@ private:
     QStandardItemModel                  *m_VnProtocolModel;
     QStandardItemModel                  *m_SnProtocolModel;
     QStandardItemModel                  *m_NnProtocolModel;
+
+    QMap<int, float>                     m_measureResult;
 };
 
 #endif // DEVICE_IKS30A_H

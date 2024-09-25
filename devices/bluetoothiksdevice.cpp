@@ -152,3 +152,8 @@ void BluetoothIKSDevice::sendRequest(Command cmd, const QVariant param)
     }
 }
 
+bool BluetoothIKSDevice::isConnected() const
+{
+    return (m_controller->state() == QLowEnergyController::ConnectedState);
+}
+

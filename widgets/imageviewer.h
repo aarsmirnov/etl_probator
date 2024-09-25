@@ -17,6 +17,8 @@ public:
 
     void setImage(const QPixmap &image);
 
+    void showEvent(QShowEvent *event) override;
+
 private:
     void configUi();
 

@@ -24,6 +24,8 @@ public:
 
     void sendRequest(Command cmd, const QVariant param = QVariant());
 
+    bool isConnected() const;
+
 signals:
     void connected();
     void disconnected();
