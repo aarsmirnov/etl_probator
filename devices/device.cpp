@@ -29,6 +29,11 @@ QVariantMap Device::getResult()
     return QVariantMap{};
 }
 
+QVector<QStringList> Device::protocol()
+{
+    return QVector<QStringList>();
+}
+
 QString Device::title() const
 {
     return m_title;
@@ -37,4 +42,9 @@ QString Device::title() const
 QPixmap Device::schema() const
 {
     return m_schema;
+}
+
+void Device::pushEvent(const QString &text)
+{
+    emit eventOccured(text);
 }

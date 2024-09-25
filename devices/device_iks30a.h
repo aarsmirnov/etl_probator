@@ -25,6 +25,7 @@ public:
     ~Device_IKS30A();
 
     QString name() const override { return QStringLiteral("ИКС30А"); }
+    QVector<QStringList> protocol() override;
 
 private:
     void configUi();

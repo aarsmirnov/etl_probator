@@ -17,10 +17,13 @@ public:
 
     virtual void setParams(const QVariantMap &params);
     virtual QVariantMap getResult();
+    virtual QVector<QStringList> protocol();
 
 protected:
     QString title() const;
     QPixmap schema() const;
+
+    void pushEvent(const QString &text);
 
 signals:
     void eventOccured(const QString &text);

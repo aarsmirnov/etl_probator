@@ -20,6 +20,7 @@
 #include <QPixmap>
 #include <QDir>
 #include <QFileInfo>
+#include <QFileDialog>
 
 #include "core.h"
 #include "logfile.h"
@@ -240,14 +241,28 @@ class MainWidgetPrivate
         menuBar->addMenu(libraryMenu);
 
         QMenu *protocolMenu = new QMenu(QObject::tr("Протокол"));
-        menuBar->addMenu(protocolMenu);
-        QObject::connect(protocolMenu, &QMenu::aboutToShow, [this] {
-            if (!QDesktopServices::openUrl(QUrl(m_core->generalSetting("excel_file").toString()))) {
-               QMessageBox::warning(q_ptr,
-                                    QObject::tr("Ошибка открытия файла"),
-                                    "Отсутствует файл с данными протокола");
+        QAction *actionProtocol1 = new QAction("Сохранить протокол измерений", protocolMenu);
+        QAction *actionProtocol2 = new QAction("Загрузить протокол измерений", protocolMenu);
+        protocolMenu->addAction(actionProtocol1);
+        QObject::connect(actionProtocol1, &QAction::triggered, [this] {
+            Device *device = static_cast<Device*>(ui->gridLayout_7->itemAt(0)->widget());
+            if (device == nullptr) {
+                QMessageBox::warning(q_ptr,
+                                     QObject::tr("Ошибка сохранения протокола"),
+                                                 "Отсутствуют данные");
+                return;
             }
+            saveProtocol(device->protocol());
         });
+        protocolMenu->addAction(actionProtocol2);
+        menuBar->addMenu(protocolMenu);
+//        QObject::connect(protocolMenu, &QMenu::aboutToShow, [this] {
+//            if (!QDesktopServices::openUrl(QUrl(m_core->generalSetting("excel_file").toString()))) {
+//               QMessageBox::warning(q_ptr,
+//                                    QObject::tr("Ошибка открытия файла"),
+//                                    "Отсутствует файл с данными протокола");
+//            }
+//        });
 
         QMenu *helpMenu = new QMenu(QObject::tr("Справка"));
         menuBar->addMenu(helpMenu);
@@ -390,9 +405,6 @@ class MainWidgetPrivate
 
         loadDataFromCore();
         setControlsEnabled(false);
-
-        ui->tbWorkGnd->setProperty("passed", 1);
-        UpdateStyle(ui->tbWorkGnd);
     }
 
     int getGridColumnCount(int total)
@@ -423,8 +435,34 @@ class MainWidgetPrivate
         }
     }
 
+    void saveProtocol(const QVector<QStringList> &data)
+    {
+        QString path = QFileDialog::getSaveFileName(q_ptr,
+                                                    QString::fromUtf8("Укажите файл для экспорта"),
+                                                    QString(),
+                                                    QString::fromUtf8("Файл csv (*.csv)"));
+        if (path.isEmpty()) {
+            return;
+        }
+
+        QFile csvFile(path);
+        if(csvFile.open(QIODevice::WriteOnly)) {
+            QTextStream textStream(&csvFile);
+            for (const auto &rowItem : data) {
+                textStream << rowItem.join(';') + "\n";
+            }
+        }
+    }
+
+    void addDeviceLogEvent(const QString &text)
+    {
+        const auto currentDateTime = QDateTime::currentDateTime();
+        ui->teDeviceLog->append(QString{ "[%1] %2"}.arg(currentDateTime.toString("hh:mm:ss")).arg(text));
+    }
+
     void setDeviceWidget()
     {
+        ui->teDeviceLog->clear();
         clearDeviceWidget();
 
         auto widget = createDevice(m_currentSchema, loadSchemaImage(QString{ "%1/%2" }.arg(m_currentTest)
@@ -432,6 +470,10 @@ class MainWidgetPrivate
         if (widget == nullptr) {
             return;
         }
+
+        QObject::connect(widget, &Device::eventOccured, [this] (const QString &text) {
+            addDeviceLogEvent(text);
+        });
 
         ui->gridLayout_7->addWidget(widget);
     }

@@ -128,6 +128,24 @@ Device_IKS30A::~Device_IKS30A()
     delete ui;
 }
 
+QVector<QStringList> Device_IKS30A::protocol()
+{
+    const auto model = getCurrentProtocolModel();
+    if (model == nullptr) {
+        return QVector<QStringList>();
+    }
+
+    QVector<QStringList> result;
+    for (int i = 0; i < model->rowCount(); i++) {
+        QStringList rowItem;
+        for (int j = 0; j < model->columnCount(); j++) {
+            rowItem << model->item(i, j)->text();
+        }
+        result.append(rowItem);
+    }
+    return result;
+}
+
 void Device_IKS30A::configUi()
 {
     ui->lblTitle->setText(title());
@@ -267,11 +285,13 @@ void Device_IKS30A::configUi()
     });
 
     QObject::connect(ui->pbProtocol, &QPushButton::clicked, [this] {
+        pushEvent("Добавлена новая запись в таблицу протокола");
         insertProtocolRecords();
     });
 
     auto protocolRecordDeleteHotkey = new QShortcut(Qt::Key_Delete, this);
     QObject::connect(protocolRecordDeleteHotkey, &QShortcut::activated, [this] {
+        pushEvent("Удалена запись из таблицы протокола");
         removeProtocolRecords();
     });
 

@@ -482,6 +482,30 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <layout class="QGridLayout" name="gridLayout_9">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item row="0" column="0">
+              <widget class="QTextEdit" name="teDeviceLog">
+               <property name="frameShape">
+                <enum>QFrame::NoFrame</enum>
+               </property>
+               <property name="sizeAdjustPolicy">
+                <enum>QAbstractScrollArea::AdjustIgnored</enum>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </widget>
           </item>
           <item>
@@ -583,18 +607,12 @@
              <item row="0" column="1">
               <widget class="QToolButton" name="tbVoltage">
                <property name="text">
-                <string/>
-               </property>
-               <property name="icon">
-                <iconset resource="resources.qrc">
-                 <normaloff>:/ui/style/voltage_symbol_on.svg</normaloff>
-                 <normalon>:/ui/style/voltage_symbol_on.svg</normalon>
-                 <activeoff>:/ui/style/voltage_symbol_on.svg</activeoff>:/ui/style/voltage_symbol_on.svg</iconset>
+                <string>-</string>
                </property>
                <property name="iconSize">
                 <size>
-                 <width>32</width>
-                 <height>32</height>
+                 <width>16</width>
+                 <height>16</height>
                 </size>
                </property>
                <property name="checkable">
