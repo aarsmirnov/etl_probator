@@ -20,6 +20,8 @@ SOURCES += \
     devices/device_iks30a.cpp \
     devices/device_k33.cpp \
     devices/device_t2000.cpp \
+    devices/k33serialpackets.cpp \
+    devices/k33serialrequester.cpp \
     logfile.cpp \
     main.cpp \
     mainwidget.cpp \
@@ -35,6 +37,8 @@ HEADERS += \
     devices/device_iks30a.h \
     devices/device_k33.h \
     devices/device_t2000.h \
+    devices/k33serialpackets.h \
+    devices/k33serialrequester.h \
     logfile.h \
     mainwidget.h \
     modbusmaster.h \

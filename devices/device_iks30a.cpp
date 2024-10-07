@@ -411,10 +411,22 @@ void Device_IKS30A::insertProtocolRecords()
 
 void Device_IKS30A::removeProtocolRecords()
 {
-    const QModelIndexList selection = ui->tvVnProtocol->selectionModel()->selectedRows();
+    QTableView *currentView = nullptr;
+    switch (ui->twProtocol->currentIndex()) {
+    case 0:
+        currentView = ui->tvVnProtocol;
+    case 1:
+        currentView = ui->tvSnProtocol;
+    case 2:
+        currentView = ui->tvNnProtocol;
+    default:
+        return;
+    }
+
+    const QModelIndexList selection = currentView->selectionModel()->selectedRows();
     for (const auto &selectedIndex : selection) {
         if (selectedIndex.isValid()) {
-            m_vnProtocolModel->removeRow(selectedIndex.row());
+            currentView->model()->removeRow(selectedIndex.row());
         }
     }
 }

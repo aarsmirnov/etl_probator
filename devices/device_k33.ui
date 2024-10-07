@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>883</width>
-    <height>557</height>
+    <width>961</width>
+    <height>592</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -444,6 +444,9 @@
                 <property name="frameShape">
                  <enum>QFrame::NoFrame</enum>
                 </property>
+                <property name="horizontalScrollBarPolicy">
+                 <enum>Qt::ScrollBarAlwaysOff</enum>
+                </property>
                </widget>
               </item>
              </layout>
@@ -470,6 +473,9 @@
                 <property name="frameShape">
                  <enum>QFrame::NoFrame</enum>
                 </property>
+                <property name="horizontalScrollBarPolicy">
+                 <enum>Qt::ScrollBarAlwaysOff</enum>
+                </property>
                </widget>
               </item>
              </layout>
@@ -495,6 +501,9 @@
                <widget class="QTableView" name="tvKzProtocol">
                 <property name="frameShape">
                  <enum>QFrame::NoFrame</enum>
+                </property>
+                <property name="horizontalScrollBarPolicy">
+                 <enum>Qt::ScrollBarAlwaysOff</enum>
                 </property>
                </widget>
               </item>
@@ -682,8 +691,11 @@
                <property name="maximumSize">
                 <size>
                  <width>1000</width>
-                 <height>130</height>
+                 <height>300</height>
                 </size>
+               </property>
+               <property name="verticalScrollBarPolicy">
+                <enum>Qt::ScrollBarAlwaysOff</enum>
                </property>
               </widget>
              </item>
