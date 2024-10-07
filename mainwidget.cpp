@@ -29,6 +29,7 @@
 
 #include "devices/device_iks30a.h"
 #include "devices/device_t2000.h"
+#include "devices/device_k33.h"
 
 namespace  {
 
@@ -111,6 +112,9 @@ Device *createDevice(const QString &name, const QPixmap &schema)
     if (name == "Тангенс инверсная") {
         device = new Device_T2000(name, schema);
         params["mode"] = Device_T2000::Inverse;
+    }
+    if (name == "Измерение параметров трансформаторов Коэффициент 3.3") {
+        device = new Device_K33(name, schema);
     }
 
     if (device != nullptr) {
@@ -209,7 +213,14 @@ class MainWidgetPrivate
             QObject::connect(button, &CustomButton::clicked, [this, button] {
                 m_currentTest = button->text();
                 updateSchemaViewPage();
-                ui->stackedWidgetTests->setCurrentIndex(1);
+                if (ui->gridLayoutSchema->count() > 0) {
+                    ui->stackedWidgetTests->setCurrentIndex(1);
+                }
+                else {
+                    m_currentSchema = m_currentTest;
+                    setDeviceWidget();
+                    ui->stackedWidgetTests->setCurrentIndex(2);
+                }
             });
 
             if (column == maxColumn) {
@@ -217,22 +228,28 @@ class MainWidgetPrivate
                 column = 0;
             }
 
-            QMenu *subMenu = new QMenu(type.title);
-            testsMenu->addMenu(subMenu);
-            QObject::connect(testsMenu, &QMenu::triggered, [this] (QAction *action) {
-                m_currentSchema = action->text();
-                setDeviceWidget();
-                ui->stackedWidgetTests->setCurrentIndex(2);
-            });
+            if (type.schemes.count() > 0) {
+                QMenu *subMenu = new QMenu(type.title);
+                testsMenu->addMenu(subMenu);
+                QObject::connect(testsMenu, &QMenu::triggered, [this] (QAction *action) {
+                    m_currentSchema = action->text();
+                    setDeviceWidget();
+                    ui->stackedWidgetTests->setCurrentIndex(2);
+                });
 
-            for (const auto &schema : type.schemes) {
-                const auto schemaType = schema.value<ProbationScheme>();
-                if (schemaType.title.size() == 0) {
-                    continue;
+                for (const auto &schema : type.schemes) {
+                    const auto schemaType = schema.value<ProbationScheme>();
+                    if (schemaType.title.size() == 0) {
+                        continue;
+                    }
+
+                    QAction *action = new QAction(schemaType.title, subMenu);
+                    subMenu->addAction(action);
                 }
-
-                QAction *action = new QAction(schemaType.title, subMenu);
-                subMenu->addAction(action);
+            }
+            else {
+                QAction *action = new QAction(type.title, testsMenu);
+                testsMenu->addAction(action);
             }
         }
 
@@ -476,10 +493,13 @@ class MainWidgetPrivate
         });
 
         ui->gridLayout_7->addWidget(widget);
+        ui->wIndications->setVisible(true);
     }
 
     void updateSchemaViewPage()
     {
+        ui->wIndications->setVisible(false);
+
         clearSchemaViewPage();
 
         const auto probationData = m_core->getProbationData();

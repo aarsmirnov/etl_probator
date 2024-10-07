@@ -33,9 +33,9 @@ Device_IKS30A::Device_IKS30A(const QString &title, const QPixmap &schema, Device
     : Device(title, schema, parent)
     , ui(new Ui::Device_IKS30A)
     , m_connectionTimer(new QTimer(this))
-    , m_VnProtocolModel(new QStandardItemModel(parent))
-    , m_SnProtocolModel(new QStandardItemModel(parent))
-    , m_NnProtocolModel(new QStandardItemModel(parent))
+    , m_vnProtocolModel(new QStandardItemModel(parent))
+    , m_snProtocolModel(new QStandardItemModel(parent))
+    , m_nnProtocolModel(new QStandardItemModel(parent))
 #ifdef Q_OS_WIN
     , m_discoveryAgent(new QBluetoothDeviceDiscoveryAgent)
 #endif
@@ -186,7 +186,7 @@ void Device_IKS30A::configUi()
     m_spinner->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     ui->horizontalLayout_5->addWidget(m_spinner);
 
-    m_VnProtocolModel->setHorizontalHeaderLabels(QStringList() << "Дата"
+    m_vnProtocolModel->setHorizontalHeaderLabels(QStringList() << "Дата"
                                                                << "Объект"
                                                                << "Вид испытаний"
                                                                << "Зав. №"
@@ -198,7 +198,7 @@ void Device_IKS30A::configUi()
                                                                << QString { "C0 (t=%1)" }.arg(ui->sbTemp->value())
                                                                << "Оператор"
                                                                << "Время");
-    ui->tvVnProtocol->setModel(m_VnProtocolModel);
+    ui->tvVnProtocol->setModel(m_vnProtocolModel);
     ui->tvVnProtocol->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->tvVnProtocol->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->tvVnProtocol->horizontalHeader()->setStretchLastSection(true);
@@ -207,7 +207,7 @@ void Device_IKS30A::configUi()
     ui->tvVnProtocol->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
     ui->tvVnProtocol->verticalHeader()->setVisible(true);
 
-    m_SnProtocolModel->setHorizontalHeaderLabels(QStringList() << "Дата"
+    m_snProtocolModel->setHorizontalHeaderLabels(QStringList() << "Дата"
                                                  << "Объект"
                                                  << "Вид испытаний"
                                                  << "Зав. №"
@@ -219,7 +219,7 @@ void Device_IKS30A::configUi()
                                                  << QString { "C0 (t=%1)" }.arg(ui->sbTemp->value())
                                                  << "Оператор"
                                                  << "Время");
-    ui->tvSnProtocol->setModel(m_SnProtocolModel);
+    ui->tvSnProtocol->setModel(m_snProtocolModel);
     ui->tvSnProtocol->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->tvSnProtocol->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->tvSnProtocol->horizontalHeader()->setStretchLastSection(true);
@@ -228,7 +228,7 @@ void Device_IKS30A::configUi()
     ui->tvSnProtocol->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
     ui->tvSnProtocol->verticalHeader()->setVisible(true);
 
-    m_NnProtocolModel->setHorizontalHeaderLabels(QStringList() << "Дата"
+    m_nnProtocolModel->setHorizontalHeaderLabels(QStringList() << "Дата"
                                                  << "Объект"
                                                  << "Вид испытаний"
                                                  << "Зав. №"
@@ -240,7 +240,7 @@ void Device_IKS30A::configUi()
                                                  << QString { "C0 (t=%1)" }.arg(ui->sbTemp->value())
                                                  << "Оператор"
                                                  << "Время");
-    ui->tvNnProtocol->setModel(m_NnProtocolModel);
+    ui->tvNnProtocol->setModel(m_nnProtocolModel);
     ui->tvNnProtocol->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->tvNnProtocol->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->tvNnProtocol->horizontalHeader()->setStretchLastSection(true);
@@ -286,11 +286,9 @@ void Device_IKS30A::configUi()
         }
     });
 
-
     QObject::connect(ui->cbPhase, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [this] {
         setMeasureResult(m_measureResult.value(ui->cbPhase->currentData().toInt(), -1));
     });
-
 
     QObject::connect(ui->cbMaterial, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [this] {
         const auto model = getCurrentProtocolModel();
@@ -316,9 +314,9 @@ void Device_IKS30A::configUi()
         removeProtocolRecords();
     });
 
-    QObject::connect(m_VnProtocolModel, &QStandardItemModel::itemChanged, [this] (QStandardItem *item) {
+    QObject::connect(m_vnProtocolModel, &QStandardItemModel::itemChanged, [this] (QStandardItem *item) {
         if (item->column() == 4 || item->column() == 5 || item->column() == 6) {
-            m_VnProtocolModel->item(item->row(), item->column() + 3)->setText(
+            m_vnProtocolModel->item(item->row(), item->column() + 3)->setText(
                 QString::number(getResistanceForTemp(m_measureResult.value(item->column()))));
         }
     });
@@ -416,7 +414,7 @@ void Device_IKS30A::removeProtocolRecords()
     const QModelIndexList selection = ui->tvVnProtocol->selectionModel()->selectedRows();
     for (const auto &selectedIndex : selection) {
         if (selectedIndex.isValid()) {
-            m_VnProtocolModel->removeRow(selectedIndex.row());
+            m_vnProtocolModel->removeRow(selectedIndex.row());
         }
     }
 }
@@ -432,11 +430,11 @@ QStandardItemModel *Device_IKS30A::getCurrentProtocolModel()
 {
     switch (ui->twProtocol->currentIndex()) {
     case 0:
-        return m_VnProtocolModel;
+        return m_vnProtocolModel;
     case 1:
-        return m_SnProtocolModel;
+        return m_snProtocolModel;
     case 2:
-        return m_NnProtocolModel;
+        return m_nnProtocolModel;
     default:
         return nullptr;
     }

@@ -45,9 +45,9 @@ private:
     QTimer                              *m_connectionTimer { nullptr };
     float                               m_lastMeasureResult { 0.0f };
 
-    QStandardItemModel                  *m_VnProtocolModel;
-    QStandardItemModel                  *m_SnProtocolModel;
-    QStandardItemModel                  *m_NnProtocolModel;
+    QStandardItemModel                  *m_vnProtocolModel;
+    QStandardItemModel                  *m_snProtocolModel;
+    QStandardItemModel                  *m_nnProtocolModel;
 
     QMap<int, float>                     m_measureResult;
 };
