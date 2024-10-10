@@ -62,6 +62,11 @@ void Device_T2000::configUi()
     ui->cbSchema->addItem("Прямая");
     ui->cbSchema->addItem("Инверсная");
 
+    ui->cbZone->addItem("Зона 0");
+    ui->cbZone->addItem("Зона 1");
+    ui->cbZone->addItem("Зона 2");
+    ui->cbZone->addItem("Зона 3");
+
     ui->pbConnect->setEnabled(false);
 
     //ui->wMeasure->setEnabled(false);

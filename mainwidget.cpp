@@ -244,6 +244,11 @@ class MainWidgetPrivate
             }
             else {
                 QAction *action = new QAction(type.title, testsMenu);
+                QObject::connect(action, &QAction::triggered, [this, action] {
+                    m_currentSchema = action->text();
+                    setDeviceWidget();
+                    ui->stackedWidgetTests->setCurrentIndex(2);
+                });
                 testsMenu->addAction(action);
             }
         }
