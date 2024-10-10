@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QStandardItemModel>
+#include <QTimer>
 
 #include "device.h"
 #include "k33serialrequester.h"
@@ -43,6 +44,7 @@ private:
 
     K33SerialRequester          *m_serialRequester { nullptr };
     bool                         m_readyToMeasure { false };
+    bool                         m_measureStop { false };
 
     QMap<int, QMap<QString, QString>>       m_measureResult;
 
@@ -50,6 +52,8 @@ private:
     QStandardItemModel          *m_ktProtocolModel;
     QStandardItemModel          *m_hhProtocolModel;
     QStandardItemModel          *m_kzProtocolModel;
+
+    QTimer                      *m_measureTimer;
 };
 
 #endif // DEVICE_K33_H

@@ -36,7 +36,7 @@ Device_IKS30A::Device_IKS30A(const QString &title, const QPixmap &schema, Device
     , m_vnProtocolModel(new QStandardItemModel(parent))
     , m_snProtocolModel(new QStandardItemModel(parent))
     , m_nnProtocolModel(new QStandardItemModel(parent))
-#ifdef Q_OS_WIN
+#ifndef Q_OS_WIN
     , m_discoveryAgent(new QBluetoothDeviceDiscoveryAgent)
 #endif
 {
@@ -44,7 +44,7 @@ Device_IKS30A::Device_IKS30A(const QString &title, const QPixmap &schema, Device
     setStyleSheet(utils::loadStyleSheet(kStylesheetPath));
     configUi();
 
-#ifdef Q_OS_WIN
+#ifndef Q_OS_WIN
     m_discoveryAgent->setLowEnergyDiscoveryTimeout(kDiscoveryTimeoutMs);
 
     QObject::connect(m_discoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered,
@@ -326,7 +326,7 @@ void Device_IKS30A::configUi()
     QObject::connect(m_connectionTimer, &QTimer::timeout, [this] {
         ui->lblConnectionStatus->setText("Не удалось подключиться к устройству");
         pushEvent("Не удалось подключиться к устройству");
-        m_controller->disconnect();
+        //m_controller->disconnect();
     });
 }
 

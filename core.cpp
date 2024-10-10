@@ -32,7 +32,7 @@ namespace  {
         { "Испытание устройств РПН (ПКР-2М)", "sch3" },
         { "Измерение омического сопротивления ИКС-30А", "sch6" },
         { "Измерение диэлектрических потерь (Тангенс 2000)", "sch7" },
-        { "Измерение параметров силовых трансформаторов (СЭИТ-4М-К540)", "sch5" },
+        { "Измерение параметров трансформаторов", "sch5" },
     };
 }
 
@@ -263,23 +263,23 @@ void Core::loadProbationData()
     for (const auto &item : existingTypes) {
         QString title = m_settings->value(QString("%1/name").arg(item)).toString();
 
-        QBitArray modbus_inputs(16, false);
-        auto inputs = m_settings->value(QString("%1/modbus_inputs").arg(item)).toStringList();
-        for (const auto &i : inputs) {
-            int bit = i.toInt() - input_register_adress * 16;
-            if (bit < 0 || bit > 15)
-                throw std::runtime_error(QString("error in %1").arg(QString("%1/modbus_inputs").arg(item)).toUtf8().data());
-            modbus_inputs.setBit(bit);
-        }
+//        QBitArray modbus_inputs(16, false);
+//        auto inputs = m_settings->value(QString("%1/modbus_inputs").arg(item)).toStringList();
+//        for (const auto &i : inputs) {
+//            int bit = i.toInt() - input_register_adress * 16;
+//            if (bit < 0 || bit > 15)
+//                //throw std::runtime_error(QString("error in %1").arg(QString("%1/modbus_inputs").arg(item)).toUtf8().data());
+//            modbus_inputs.setBit(bit);
+//        }
 
-        QBitArray modbus_outputs(16, false);
-        auto outputs = m_settings->value(QString("%1/modbus_outputs").arg(item)).toStringList();
-        for (const auto &i : outputs) {
-            int bit = i.toInt() - output_register_adress * 16;
-            if (bit < 0 || bit > 15)
-                throw std::runtime_error(QString("error in %1").arg(QString("%1/modbus_inputs").arg(item)).toUtf8().data());
-            modbus_outputs.setBit(bit);
-        }
+//        QBitArray modbus_outputs(16, false);
+//        auto outputs = m_settings->value(QString("%1/modbus_outputs").arg(item)).toStringList();
+//        for (const auto &i : outputs) {
+//            int bit = i.toInt() - output_register_adress * 16;
+//            if (bit < 0 || bit > 15)
+//                //throw std::runtime_error(QString("error in %1").arg(QString("%1/modbus_inputs").arg(item)).toUtf8().data());
+//            modbus_outputs.setBit(bit);
+//        }
 
         QVariantList schemes;
         int ssize = m_settings->beginReadArray(QString("%1/probations").arg(item));
@@ -297,8 +297,8 @@ void Core::loadProbationData()
         ptype.title = title;
         ptype.icon = kTestIcon.value(title);
         ptype.aux_path = m_settings->value(QString("%1/exe").arg(item)).toString();
-        ptype.modbus_inputs = std::move(modbus_inputs);
-        ptype.modbus_outputs = std::move(modbus_outputs);
+        //ptype.modbus_inputs = std::move(modbus_inputs);
+        //ptype.modbus_outputs = std::move(modbus_outputs);
         ptype.schemes = std::move(schemes);
 
         m_probation_data[title] = QVariant::fromValue(ptype);

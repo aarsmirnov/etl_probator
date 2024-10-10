@@ -1,7 +1,7 @@
 TEMPLATE = app
 TARGET = probator
 
-QT       += core gui serialport serialbus bluetooth widgets svg
+QT       += core gui serialport serialbus widgets svg
 
 CONFIG += c++11
 CONFIG -= console
@@ -66,7 +66,6 @@ CONFIG(release, debug|release) {
 
 win32 {
     DEFINES += BUILDDATE=\\\"$$system(date /t)\\\"
-    LIBS += -L$$PWD/external -lt2000
 } else {
     DEFINES += BUILDDATE=\\\"$$system(date +%Y)\\\"
 }

@@ -3,8 +3,8 @@
 
 #include <QWidget>
 #include <QTimer>
-#include <qbluetoothdevicediscoveryagent.h>
-#include <qbluetoothuuid.h>
+//#include <qbluetoothdevicediscoveryagent.h>
+//#include <qbluetoothuuid.h>
 
 #include <QtSvg/QSvgWidget>
 #include <QStandardItemModel>
@@ -39,9 +39,9 @@ private:
     Ui::Device_IKS30A                   *ui;
 
     QSvgWidget                          *m_spinner { nullptr };
-    QBluetoothDeviceDiscoveryAgent      *m_discoveryAgent { nullptr };
-    BluetoothIKSDevice                  *m_controller { nullptr };
-    QMap<QString, QBluetoothDeviceInfo> m_devices;
+//    QBluetoothDeviceDiscoveryAgent      *m_discoveryAgent { nullptr };
+//    BluetoothIKSDevice                  *m_controller { nullptr };
+//    QMap<QString, QBluetoothDeviceInfo> m_devices;
     QTimer                              *m_connectionTimer { nullptr };
     float                               m_lastMeasureResult { 0.0f };
 

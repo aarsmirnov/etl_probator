@@ -20,11 +20,18 @@ Device_K33::Device_K33(const QString &title, const QPixmap &schema, Device *pare
     , m_ktProtocolModel(new QStandardItemModel(parent))
     , m_hhProtocolModel(new QStandardItemModel(parent))
     , m_kzProtocolModel(new QStandardItemModel(parent))
-
+    , m_measureTimer(new QTimer(this))
 {
     ui->setupUi(this);
     setStyleSheet(utils::loadStyleSheet(kStylesheetPath));
     configUi();
+
+    m_measureTimer->setInterval(2000);
+    m_measureTimer->setSingleShot(false);
+    QObject::connect(m_measureTimer, &QTimer::timeout, [this] {
+        const auto packet = K33Packets::makeStartMeasurePacket();
+        m_serialRequester->writeRequest(packet);
+    });
 }
 
 Device_K33::~Device_K33()
@@ -219,6 +226,29 @@ void Device_K33::configUi()
                         m_measureResult[ui->cbMode->currentData().toInt()] = K33Packets::parseMeasureResultPacket(data, ui->cbMode->currentData().toInt());//parseMeasureKtResultPacket(data);
                         updateMeasureResult();
                         pushEvent("Измерение завершено");
+                        if (m_readyToMeasure && !m_measureStop) {
+                            m_readyToMeasure = false;
+                            K33Packets::MeasureParams params{};
+                            params.mode_code = ui->cbMode->currentData().toInt();
+                            params.voltage_code = ui->cbVoltage->currentData().toInt();
+                            if (params.mode_code == 0x00) {
+                                params.u_a = ui->cbUnnA->currentData().toInt();
+                                params.u_b = ui->cbUnnB->currentData().toInt();
+                                params.u_c = ui->cbUnnC->currentData().toInt();
+                            }
+                            else {
+                                params.i_a = ui->cbIa->currentData().toInt();
+                                params.i_b = ui->cbIb->currentData().toInt();
+                                params.i_c = ui->cbIc->currentData().toInt();
+                            }
+
+                            const auto packet = K33Packets::makeSetMeasureParamsPacket(params);
+                            m_serialRequester->writeRequest(packet);
+                            pushEvent("Выполняется измерение");
+
+                            ui->pbMeasure->setEnabled(false);
+                        }
+                        ui->pbMeasure->setEnabled(!m_measureStop);
                     }
                 });
             }
@@ -230,6 +260,7 @@ void Device_K33::configUi()
 
     QObject::connect(ui->pbMeasure, &QPushButton::clicked, [this] {
         m_readyToMeasure = false;
+        m_measureStop = false;
         K33Packets::MeasureParams params{};
         params.mode_code = ui->cbMode->currentData().toInt();
         params.voltage_code = ui->cbVoltage->currentData().toInt();
@@ -247,6 +278,14 @@ void Device_K33::configUi()
         const auto packet = K33Packets::makeSetMeasureParamsPacket(params);
         m_serialRequester->writeRequest(packet);
         pushEvent("Выполняется измерение");
+
+        ui->pbMeasure->setEnabled(false);
+    });
+
+    QObject::connect(ui->pbStop, &QPushButton::clicked, [this] {
+        m_measureStop = true;
+        ui->pbMeasure->setEnabled(true);
+        pushEvent("Измерения остановлены");
     });
 
     QObject::connect(ui->pbProtocol, &QPushButton::clicked, [this] {

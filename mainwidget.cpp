@@ -102,16 +102,11 @@ Device *createDevice(const QString &name, const QPixmap &schema)
     QVariantMap params;
     Device *device { nullptr };
 
-    if (name == "Четырехпроводная схема измерения") {
+    if (name == "Измерение омического сопротивления ИКС-30А") {
         device = new Device_IKS30A(name, schema);
     }
-    if (name == "Тангенс прямая") {
+    if (name == "Измерение диэлектрических потерь (Тангенс 2000)") {
         device = new Device_T2000(name, schema);
-        params["mode"] = Device_T2000::Direct;
-    }
-    if (name == "Тангенс инверсная") {
-        device = new Device_T2000(name, schema);
-        params["mode"] = Device_T2000::Inverse;
     }
     if (name == "Измерение параметров трансформаторов Коэффициент 3.3") {
         device = new Device_K33(name, schema);
@@ -173,12 +168,12 @@ class MainWidgetPrivate
 
     void configUI()
     {
-//        m_indications[Core::Blocks::VOLTAGE] = ui->toolButton_1;
-//        m_indications[Core::Blocks::CURRENT] = ui->toolButton_2;
-//        m_indications[Core::Blocks::DOORS] = ui->toolButton_3;
-//        m_indications[Core::Blocks::EMERGENCY_BUTTON] = ui->toolButton_4;
-//        m_indications[Core::Blocks::GND] = ui->toolButton_5;
-//        m_indications[Core::Blocks::WORK_GND] = ui->toolButton_6;
+        m_indications[Core::Blocks::VOLTAGE] = ui->tbVoltage;
+        m_indications[Core::Blocks::CURRENT] = ui->tbCurrent;
+        m_indications[Core::Blocks::DOORS] = ui->tbDoors;
+        m_indications[Core::Blocks::EMERGENCY_BUTTON] = ui->tbEmergency;
+        m_indications[Core::Blocks::GND] = ui->tbGnd;
+        m_indications[Core::Blocks::WORK_GND] = ui->tbWorkGnd;
 
         //ui->voltageLabel->hide();
 
@@ -682,11 +677,11 @@ void MainWidget::setIndication(const QBitArray& bits)
         Logger.Log("All blockings are fine");
     }
     d->m_start_is_available = activateStart;
-//    if (!d->m_start_is_available) {
-//        d->switchStartIndication(false);
-//    } else if (d->ui->typeComboBox->currentIndex() > 0) {
-//        d->switchStartIndication(!d->m_voltage_is_on && d->m_start_is_available);
-//    }
+    if (!d->m_start_is_available) {
+        d->switchStartIndication(false);
+    } else {
+        d->switchStartIndication(!d->m_voltage_is_on && d->m_start_is_available);
+    }
 }
 
 void MainWidget::showEvent(QShowEvent *event)
