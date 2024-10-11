@@ -206,20 +206,23 @@ class MainWidgetPrivate
 
             auto *button = new CustomButton(q_ptr);
             button->setText(type.title);
-            button->setIcon(QPixmap(QString{ ":/ui/style/scheme/%1.svg" }.arg(type.icon)),
-                            QPixmap(QString{ ":/ui/style/scheme/%1_hover.svg" }.arg(type.icon)));
+            button->setIcon(QPixmap(QString{ ":/ui/style/scheme/%1.svg" }.arg(type.icon.isNull() ? "sch1" : type.icon)),
+                            QPixmap(QString{ ":/ui/style/scheme/%1_hover.svg" }.arg(type.icon.isNull() ? "sch1" : type.icon)));
             ui->gridLayoutTests->addWidget(button, row, column++);
             QObject::connect(button, &CustomButton::clicked, [this, button] {
                 m_currentTest = button->text();
-                updateSchemaViewPage();
-                if (ui->gridLayoutSchema->count() > 0) {
-                    ui->stackedWidgetTests->setCurrentIndex(1);
-                }
-                else {
-                    m_currentSchema = m_currentTest;
-                    setDeviceWidget();
-                    ui->stackedWidgetTests->setCurrentIndex(2);
-                }
+                //updateSchemaViewPage();
+//                if (ui->gridLayoutSchema->count() > 0) {
+//                    ui->stackedWidgetTests->setCurrentIndex(1);
+//                }
+//                else {
+//                    m_currentSchema = m_currentTest;
+//                    setDeviceWidget();
+//                    ui->stackedWidgetTests->setCurrentIndex(2);
+//                }
+                m_currentSchema = m_currentTest;
+                setDeviceWidget();
+                ui->stackedWidgetTests->setCurrentIndex(2);
             });
 
             if (column == maxColumn) {
@@ -435,7 +438,7 @@ class MainWidgetPrivate
             return total;
         }
 
-        return result;
+        return result + 1;
     }
 
     void clearSchemaViewPage()

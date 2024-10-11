@@ -27,12 +27,11 @@ QMap<Core::Blocks, QString> Core::IndicationErrors = {
 
 namespace  {
     const QMap<QString, QString> kTestIcon = {
-        { "Измерение параметров трансформаторов Коэффициент 3.3", "sch2" },
-        { "Высоковольтные испытания", "sch1" },
-        { "Высоковольтные испытания ВИУ-100-70", "sch3" },
+        { "Измерение параметров трансформаторов Коэффициент 3.3", "sch5" },
+        { "Высоковольтные испытания ВИУ-100-70", "sch1" },
         { "Измерение омического сопротивления ИКС-30А", "sch6" },
         { "Измерение диэлектрических потерь (Тангенс 2000)", "sch7" },
-        { "Измерение параметров трансформаторов", "sch5" },
+        { "Рефлектометр РЕЙС-405-1", "sch3" },
     };
 }
 
@@ -46,7 +45,7 @@ Core::Core(QObject *parent)
     m_settings->setIniCodec("utf-8");
 
     Logger.Log("Session started");
-    syncSettings();
+    //syncSettings();
     loadProbationData();
     m_default_language = generalSetting("default_language").toString();
 
@@ -84,12 +83,12 @@ Core::Core(QObject *parent)
     m_polling_timer = new QTimer(this);
     m_polling_timer->setInterval(generalSetting("polling_interval_ms").toInt());
     connect(m_polling_timer, &QTimer::timeout, this, &Core::poller);
-    //m_polling_timer->start();
+    m_polling_timer->start();
 }
 
 Core::~Core()
 {
-    //m_polling_timer->stop();
+    m_polling_timer->stop();
 }
 
 QVariant Core::generalSetting(const QString &key) const
