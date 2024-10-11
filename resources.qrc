@@ -18,6 +18,8 @@
         <file>devices/style/iks30a_stylesheet.css</file>
         <file>devices/style/t2000_stylesheet.css</file>
         <file>devices/style/k33_stylesheet.css</file>
+        <file>devices/style/v100_stylesheet.css</file>
+        <file>pics/tools.svg</file>
     </qresource>
     <qresource prefix="/ui">
         <file>style/window_min.svg</file>
@@ -55,7 +57,5 @@
         <file>style/work_gnd_symbol.svg</file>
         <file>style/electric_warning.svg</file>
     </qresource>
-    <qresource prefix="/">
-        <file>devices/style/k33_stylesheet.css</file>
-    </qresource>
+    <qresource prefix="/"/>
 </RCC>

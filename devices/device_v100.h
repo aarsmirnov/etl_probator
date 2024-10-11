@@ -59,13 +59,13 @@ QT_END_NAMESPACE
 
 #include "device.h"
 
-class StingrayGUI : public Device
+class Device_V100 : public Device
 {
     Q_OBJECT
 
 public:
-   explicit StingrayGUI(QWidget *parent = nullptr);
-    ~StingrayGUI();
+   explicit Device_V100(const QString &title, const QPixmap &schema, Device *parent = nullptr);
+    ~Device_V100();
 
 public slots:
     void ProcessReadedData(V100Core::InputDataTypeDef data); // Показываем включили или не установку

@@ -113,7 +113,7 @@ Device *createDevice(const QString &name, const QPixmap &schema)
         device = new Device_K33(name, schema);
     }
     if (name == "Высоковольтные испытания ВИУ-100-70") {
-        device = new StingrayGUI();
+        device = new Device_V100(name, schema);
     }
 
     if (device != nullptr) {

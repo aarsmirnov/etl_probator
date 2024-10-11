@@ -1,0 +1,60 @@
+#lblConnectionStatus {
+    border: 1px solid #E6E6E6;
+    border-radius: 3px;
+}
+
+QPushButton {
+    background: white;
+    height: 30px;
+    border: 1px solid #E6E6E6;
+    border-radius: 3px;
+}
+
+QPushButton:disabled
+{
+    background: #dee1eb;
+}
+
+QPushButton:hover {
+    background: #F2F2F2;
+}
+
+QComboBox,
+QLineEdit,
+QSpinBox {
+    height: 30px;
+    background: white;
+    border: 1px solid #E6E6E6;
+    border-radius: 3px;
+}
+
+QComboBox::drop-down
+{
+    background-color: white;
+}
+
+#TimerValue {
+    border: none;
+    font-size: 16px;
+}
+
+#lblMeasureStatus {
+    color: #616160;
+    font-size: 16px;
+}
+
+#lblMeasureResult {
+    color: black;
+    font-size: 64px;
+}
+
+#tbHelp_3 {
+    border: 1px solid gray;
+    border-radius: 16px;
+    height: 30px;
+    width: 30px;
+}
+
+#tbHelp_3:hover {
+    background: #F2F2F2;
+}

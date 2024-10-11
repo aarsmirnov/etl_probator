@@ -31,7 +31,9 @@ SOURCES += \
     modbusmaster.cpp \
     utils.cpp \
     widgets/custombutton.cpp \
-    widgets/imageviewer.cpp
+    widgets/imageviewer.cpp \
+    widgets/qcustomplot.cpp \
+    widgets/speedometer.cpp
 
 HEADERS += \
     core.h \
@@ -50,7 +52,9 @@ HEADERS += \
     modbusmaster.h \
     utils.h \
     widgets/custombutton.h \
-    widgets/imageviewer.h
+    widgets/imageviewer.h \
+    widgets/qcustomplot.h \
+    widgets/speedometer.h
 
 FORMS += \
     devices/device_iks30a.ui \
