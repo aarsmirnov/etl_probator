@@ -30,6 +30,7 @@
 #include "devices/device_iks30a.h"
 #include "devices/device_t2000.h"
 #include "devices/device_k33.h"
+#include "devices/device_v100.h"
 
 namespace  {
 
@@ -110,6 +111,9 @@ Device *createDevice(const QString &name, const QPixmap &schema)
     }
     if (name == "Измерение параметров трансформаторов Коэффициент 3.3") {
         device = new Device_K33(name, schema);
+    }
+    if (name == "Высоковольтные испытания ВИУ-100-70") {
+        device = new StingrayGUI();
     }
 
     if (device != nullptr) {

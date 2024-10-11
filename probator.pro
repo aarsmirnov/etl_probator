@@ -20,8 +20,11 @@ SOURCES += \
     devices/device_iks30a.cpp \
     devices/device_k33.cpp \
     devices/device_t2000.cpp \
+    devices/device_v100.cpp \
     devices/k33serialpackets.cpp \
     devices/k33serialrequester.cpp \
+    devices/v100_core.cpp \
+    devices/v100_modbusmaster.cpp \
     logfile.cpp \
     main.cpp \
     mainwidget.cpp \
@@ -37,8 +40,11 @@ HEADERS += \
     devices/device_iks30a.h \
     devices/device_k33.h \
     devices/device_t2000.h \
+    devices/device_v100.h \
     devices/k33serialpackets.h \
     devices/k33serialrequester.h \
+    devices/v100_core.h \
+    devices/v100_modbusmaster.h \
     logfile.h \
     mainwidget.h \
     modbusmaster.h \
@@ -50,6 +56,7 @@ FORMS += \
     devices/device_iks30a.ui \
     devices/device_k33.ui \
     devices/device_t2000.ui \
+    devices/device_v100.ui \
     mainwidget.ui \
     widgets/imageviewer.ui
 
